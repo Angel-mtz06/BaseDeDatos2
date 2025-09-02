@@ -1,0 +1,84 @@
+--CREACION DE LA TABLA 
+CREATE TABLE Productos(
+CVEART Varchar2(18) NOT null,
+NOMBRE varchar2(80) not null,
+PRECIO number(18,2) default 0
+);
+ALTER TABLE Productos Add constraint PK$Productos$Cveart Primary key(CVEART);
+
+--VERIFICACION DE NULOS
+SELECT CVEART, DESCRIPCION FROM VENTAS
+WHERE CVEART IS NULL OR DESCRIPCION IS NULL;
+--RELACIONA 2 DESCRIPCIONES UNA ES DE LA TABLA QUE YA SABIAMOS QUE TENIA NULOS EN CVEART 
+--Y OTRA ES DE LA MISMA TABLA PERO BUSCANDO EL MAXIMO CVEART DONDE LA DESCRIPCION SEA IGUAL 
+--A LA DE LA PRIMERA TABLA
+Select cveart,descripcion,(select max(cveart) from ventas t where t.
+descripcion =v.descripcion)
+from ventas v
+where cveart is null
+
+
+--EDITAR LOS NULOS DE CVEART USANDO ROWID 
+Select cveart,descripcion,v.rowid
+from ventas v 
+where cveart is null
+
+
+-- Creamos una tabla temporal TEMP_DESCRI para ayudar a llenar los valores nulos en la columna DESCRIPCION 
+--de la tabla VENTAS.
+-- Esta tabla contiene:
+--   1. cveart: el código del artículo.
+--   2. descripcion: que inicialmente es NULL para estos registros.
+--   3. DESCRI_NEW: la descripción existente más reciente (o “máxima”) de ese mismo cveart en la tabla VENTAS.
+-- 
+-- Con esta tabla temporal, podemos actualizar los registros que tienen descripcion NULL usando DESCRI_NEW,
+-- asegurando que cada artículo tenga una descripción consistente basada en los datos existentes.
+CREATE TABLE TEMP_DESCRI AS
+SELECT 
+    cveart,
+    descripcion,
+    (SELECT MAX(descripcion) 
+     FROM ventas t 
+     WHERE t.cveart = v.cveart) AS DESCRI_NEW
+FROM ventas v
+WHERE descripcion IS NULL;
+
+--- Actualizamos la tabla VENTAS para llenar los valores nulos en la columna DESCRIPCION.
+UPDATE ventas v 
+SET v.descripcion = (
+    SELECT MAX(t.descri_new) 
+    FROM temp_descri t 
+    WHERE t.cveart = v.cveart
+)
+WHERE descripcion IS NULL 
+AND v.cveart IN (SELECT cveart FROM temp_descri);
+
+--insertar los datos en la tabla productos (no funciona el insert)
+insert into productos 
+(select distinct cveart, descripcion, 0 from ventas);
+
+
+--SELECT PARA SABER CUANTAS DESCRIPCIONES DISTINTAS HAY POR CADA CVEART Y SI EXISTEN
+Select cveart, count(Distinct descripcion)
+from ventas
+group by Cveart
+order by 2 desc;
+--REVISION DE UN ARTICULO EN ESPECIFICO PARA VER COMO ESTA LA COSA XD (GRAVE ERROR)
+select cveart, descripcion, precio from ventas
+where cveart='TUPN1820'
+
+select cveart, descripcion, precio from ventas
+where descripcion like '%PLOMO%' AND  descripcion like '%LAMINA%'
+
+select cveart, descripcion, precio from ventas
+where precio=13.00
+
+--SELECT DE SOLO LAS DESCRIPCIONES QUE TIENEN MAS DE UN CVEART ASOCIADO
+Select descripcion
+from ventas 
+where cveart in(
+  Select cveart
+  from ventas
+  group by Cveart
+  having count(Distinct descripcion)>1)
+Group by descripcion;
