@@ -73,7 +73,7 @@ where descripcion like '%PLOMO%' AND  descripcion like '%LAMINA%'
 select cveart, descripcion, precio from ventas
 where precio=13.00
 
---SELECT DE SOLO LAS DESCRIPCIONES QUE TIENEN MAS DE UN CVEART ASOCIADO
+--SELECT DE SOLO LAS DESCRIPCIONES QUE TIENEN MAS DE UNA DESCRIPCION ASOCIADO A UN MISMO CVEART
 Select descripcion
 from ventas 
 where cveart in(
