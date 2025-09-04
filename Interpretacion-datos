@@ -1,0 +1,131 @@
+-- 1. ¿Qué promedio de edad tienen los alumnos por estado de nacimiento
+SELECT ESTADO_NACIMIENTO, ROUND(AVG(ANIOS_EDAD),0) FROM ALUMNOS
+GROUP BY ESTADO_NACIMIENTO;
+-- 2. ¿Cuántos alumnos nacieron en Oaxaca por cada mes del año?
+SELECT TO_CHAR(FECHA_NACIMIENTO,'MONTH'), COUNT(*) FROM ALUMNOS A 
+GROUP BY TO_CHAR(FECHA_NACIMIENTO,'MONTH');
+-- 3. ¿Cuál es el promedio de peso y promedio de estatura por sexo?
+SELECT SEXO,AVG(PESO),AVG(ESTATURA) FROM ALUMNOS
+GROUP BY SEXO;
+-- 4. ¿Cuántos alumnos hay por año de nacimiento?
+SELECT MES, COUNT(*) 
+FROM (SELECT TO_CHAR(FECHA_NACIMIENTO,'YYYY') MES FROM ALUMNOS)
+GROUP BY MES;
+-- 5. ¿Cuáles son los tres estados de nacimiento con mayor número de alumnos
+SELECT * FROM (SELECT ESTADO_NACIMIENTO,COUNT(*) FROM ALUMNOS 
+GROUP BY ESTADO_NACIMIENTO
+ORDER BY COUNT(*) DESC) WHERE ROWNUM<4;
+-- 6. ¿Cuál es el estado civil con el promedio de edad más alto?
+SELECT * FROM(
+SELECT ESTADO_CIVIL, AVG(ANIOS_EDAD) 
+FROM ALUMNOS GROUP BY ESTADO_CIVIL ORDER BY AVG(ANIOS_EDAD) DESC)WHERE ROWNUM <2;
+-- 7. ¿Cuál es el peso máximo y mínimo por estado civil?
+SELECT ESTADO_CIVIL, MAX(PESO), MIN(PESO) FROM ALUMNOS
+GROUP BY ESTADO_CIVIL;
+-- 8. ¿Cuántos alumnos tienen apellido materno nulo por estado de nacimiento?
+SELECT ESTADO_NACIMIENTO,
+       COUNT(CASE WHEN APELLIDO_MATERNO IS NULL THEN 1 END) 
+FROM ALUMNOS
+GROUP BY ESTADO_NACIMIENTO;
+
+-- 9. ¿Cuántos alumnos cumplen años en fin de semana (sábado o domingo) por mes?
+SELECT TO_CHAR(FECHA_NACIMIENTO,'MONTH') AS MES,
+       COUNT(*) AS CUMPLE_FIN_SEMANA
+FROM ALUMNOS
+WHERE TO_CHAR(FECHA_NACIMIENTO,'DAY') IN ('SÁBADO','DOMINGO')
+GROUP BY TO_CHAR(FECHA_NACIMIENTO,'MONTH')
+ORDER BY MES;
+-- 10. ¿Cuál es la estatura promedio por año de nacimiento y qué años superan 1.70 m?
+SELECT * FROM (SELECT ANIO, AVG(ESTATURA) PROME FROM 
+(SELECT ESTATURA,TO_CHAR(FECHA_NACIMIENTO,'YYYY') ANIO FROM ALUMNOS)
+GROUP BY ANIO) WHERE PROME>1.7;
+-- 11. ¿Cuántos alumnos hay por inicial del apellido paterno?
+SELECT LETRA,COUNT(*) FROM (SELECT APELLIDO_PATERNO, SUBSTR (APELLIDO_PATERNO,1,1) LETRA FROM ALUMNOS)
+GROUP BY LETRA;
+-- 12. ¿Cuál es el promedio de peso de los alumnos que miden al menos 1.75 mts por sexo?
+SELECT SEXO, AVG(PESO) FROM ALUMNOS WHERE ESTATURA<1.75 GROUP BY SEXO;
+-- 13. ¿Cuántos alumnos no nacieron en Oaxaca, Puebla, Chiapas por estado?
+SELECT 'NACIDOS',SUM(NAC) FROM (SELECT ESTADO_NACIMIENTO,COUNT(*) NAC FROM ALUMNOS
+WHERE ESTADO_NACIMIENTO NOT IN ('OAXACA','CHIAPAS','PUEBLA')
+GROUP BY ESTADO_NACIMIENTO);
+-- 14. ¿Cuáles son los 5 alumnos más jóvenes?
+SELECT * FROM (SELECT * FROM ALUMNOS
+ORDER BY FECHA_NACIMIENTO DESC) WHERE ROWNUM<6;
+-- 15. ¿Cuántos alumnos tienen APELLIDO_PATERNO que empieza con 'L' por estado?
+SELECT ESTADO_NACIMIENTO, COUNT(*) FROM ALUMNOS 
+WHERE APELLIDO_PATERNO LIKE 'L%' 
+GROUP BY ESTADO_NACIMIENTO;
+-- 16. ¿Cuál es el promedio de edad por estado civil para alumnos cuyo peso es mayor 80 kg 
+--y estatura es mayor 1.70 m?
+SELECT ESTADO_CIVIL, AVG(ANIOS_EDAD) FROM ALUMNOS
+WHERE PESO>80 AND ESTATURA>1.7
+GROUP BY ESTADO_CIVIL;
+-- 17. ¿Cuántos alumnos nacieron entre 1998 y 2002 por sexo?
+SELECT SEXO, COUNT(*) FROM ALUMNOS 
+WHERE FECHA_NACIMIENTO BETWEEN DATE '1998-01-01' AND DATE '2002-12-31'
+GROUP BY SEXO;
+-- 18. ¿Cuál es el promedio de estatura por estado de nacimiento solo para grupos con al menos 15 alumnos?
+SELECT ESTADO_NACIMIENTO, AVG(ESTATURA) AS PROMEDIO_ESTATURA
+FROM ALUMNOS
+GROUP BY ESTADO_NACIMIENTO
+HAVING COUNT(*) >= 15;
+-- 19. ¿Qué porcentaje del total representan los alumnos de cada estado? (puede resolverse con subconsulta del total).
+SELECT ESTADO_NACIMIENTO,
+       COUNT(*) * 100.0 / (SELECT COUNT(*) FROM ALUMNOS)
+FROM ALUMNOS
+GROUP BY ESTADO_NACIMIENTO;
+-- 20. ¿Cuántos alumnos tienen NOMBRE que contiene 'CAR' por año de nacimiento?
+SELECT TO_CHAR(FECHA_NACIMIENTO,'YYYY') AS ANIO, COUNT(*) 
+FROM ALUMNOS
+WHERE UPPER(NOMBRE) LIKE '%CAR%'
+GROUP BY TO_CHAR(FECHA_NACIMIENTO,'YYYY')
+-- 21. ¿Cuál es la edad promedio de los alumnos de Oaxaca por mes de nacimiento?
+SELECT TO_CHAR(FECHA_NACIMIENTO,'MM') AS MES, AVG(ANIOS_EDAD)
+FROM ALUMNOS
+WHERE ESTADO_NACIMIENTO = 'OAXACA'
+GROUP BY TO_CHAR(FECHA_NACIMIENTO,'MM')
+-- 22. ¿Cuántos alumnos tienen peso por encima del promedio global por estado civil?
+SELECT ESTADO_CIVIL, COUNT(*)
+FROM ALUMNOS
+WHERE PESO > (SELECT AVG(PESO) FROM ALUMNOS)
+GROUP BY ESTADO_CIVIL;
+-- 23. ¿Cuál es el promedio del peso por estado y por sexo?
+SELECT ESTADO_NACIMIENTO, SEXO, AVG(PESO)
+FROM ALUMNOS
+GROUP BY ESTADO_NACIMIENTO, SEXO
+ORDER BY ESTADO_NACIMIENTO, SEXO;
+-- 24. ¿Cuántos alumnos pertenecen a cada década de nacimiento (1990s, 2000s, etc.)?
+SELECT TRUNC(TO_NUMBER(TO_CHAR(FECHA_NACIMIENTO,'YYYY'))/10)*10 AS DEC,
+       COUNT(*)
+FROM ALUMNOS
+GROUP BY TRUNC(TO_NUMBER(TO_CHAR(FECHA_NACIMIENTO,'YYYY'))/10)*10
+
+-- 25. ¿Cuál es el promedio de edad por estado de nacimiento excluyendo alumnos con APELLIDO_MATERNO nulo?
+SELECT ESTADO_NACIMIENTO, AVG(ANIOS_EDAD) 
+FROM ALUMNOS
+WHERE APELLIDO_MATERNO IS NOT NULL
+GROUP BY ESTADO_NACIMIENTO
+-- 26. ¿Cuántos alumnos tienen nombre de longitud exacta 5 por sexo?
+SELECT SEXO, COUNT(*) 
+FROM ALUMNOS
+WHERE LENGTH(NOMBRE) < 6
+GROUP BY SEXO;
+-- 27. ¿Qué estado civil tiene el mayor número de alumnos con estatura entre 1.60 y 1.75 y APELLIDO_PATERNO no inicia con 'A'?
+SELECT ESTADO_CIVIL, COUNT(*) 
+FROM ALUMNOS
+WHERE ESTATURA BETWEEN 1.60 AND 1.75
+  AND SUBSTR(APELLIDO_PATERNO,1,1) <> 'A'
+GROUP BY ESTADO_CIVIL
+-- 28. ¿Cuántos alumnos hay por combinación (SEXO, ESTADO_CIVIL) y cuál es su peso promedio?
+SELECT SEXO, ESTADO_CIVIL, COUNT(*) AS NUM_ALUMNOS, AVG(PESO) AS PROMEDIO_PESO
+FROM ALUMNOS
+GROUP BY SEXO, ESTADO_CIVIL
+-- 29. ¿Cuáles son los 10 alumnos más altos y de qué estado de nacimiento son (mostrar ambos datos)?
+SELECT * FROM (SELECT NOMBRE, ESTADO_NACIMIENTO, ESTATURA
+FROM ALUMNOS
+ORDER BY ESTATURA DESC) WHERE ROWNUM<11;
+-- 30. ¿En qué mes se concentran más nacimientos 
+--     y cuántos alumnos nacieron en ese mes? (agrupar por mes y tomar el máximo).
+SELECT * FROM (SELECT MES, COUNT(*) FROM (SELECT TO_CHAR(FECHA_NACIMIENTO,'MONTH') MES FROM ALUMNOS)
+GROUP BY MES
+ORDER BY COUNT(*) DESC) WHERE ROWNUM<2;
