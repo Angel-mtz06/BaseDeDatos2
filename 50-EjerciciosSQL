@@ -1,0 +1,138 @@
+--------------------------------------------------------------
+--Ejercicios de SELECT – Tabla ALUMNOS
+--============================================================
+
+--1. Muestra todos los campos de la tabla ALUMNOS.
+SELECT * FROM ALUMNOS;
+--2. Lista únicamente las columnas MATRICULA, NOMBRE y APELLIDO_PATERNO.
+SELECT MATRICULA, NOMBRE, APELLIDO_PATERNO FROM ALUMNOS;
+--3. Concatenar APELLIDO_PATERNO, APELLIDO_MATERNO y NOMBRE en un solo campo llamado NOMBRE_COMPLETO.
+SELECT APELLIDO_PATERNO ||' '|| APELLIDO_MATERNO ||' '|| NOMBRE NOMBRE_COMPLETO FROM ALUMNOS;
+--4. Mostrar los nombres en mayúsculas y los apellidos paternos en minúsculas usando funciones predefinidas.
+SELECT   UPPER(NOMBRE) NOMBRES_MAYUSCULAS, LOWER(APELLIDO_PATERNO) APELLIDOS_MINUSCULAS FROM ALUMNOS;
+--5. Obtener el nombre y la fecha de nacimiento de todos los alumnos, mostrando la fecha en formato DD-MON-YYYY.
+SELECT NOMBRE, TO_CHAR(FECHA_NACIMIENTO,'DD/MON/YYYY') FROM ALUMNOS;
+--6. Selecciona a los alumnos cuyo SEXO sea 'F'.
+SELECT * FROM (SELECT A.*, DECODE(SEXO,'MUJER','F','HOMBRE','M','X') SEXON  FROM ALUMNOS A)
+WHERE SEXON='F';
+--7. Muestra los alumnos que nacieron después del año 2000.
+SELECT * FROM ALUMNOS WHERE FECHA_NACIMIENTO>TO_DATE('31/12/1999','DD/MM/YYYY');
+--8. Lista a los alumnos cuyo PESO sea mayor a 80 y su ESTATURA sea mayor a 1.70.
+SELECT * FROM ALUMNOS WHERE PESO > 80 AND ESTATURA>1.70 ;
+--9. Obtén a los alumnos cuyo ESTADO_CIVIL sea 'Soltero' o 'Casado'.
+SELECT * FROM ALUMNOS WHERE ESTADO_CIVIL = 'CASAD@' OR ESTADO_CIVIL ='SOLTER@';
+--10. Muestra a los alumnos que no tienen APELLIDO_MATERNO registrado.
+SELECT * FROM ALUMNOS WHERE APELLIDO_MATERNO IS NULL;
+--11. Lista a los alumnos cuyo ESTADO_NACIMIENTO sea 'Oaxaca' o 'Puebla'.
+SELECT * FROM ALUMNOS WHERE ESTADO_NACIMIENTO ='OAXACA' OR  ESTADO_NACIMIENTO ='PUEBLA';
+--12. Muestra los alumnos cuya ESTATURA esté entre 1.60 y 1.75.
+SELECT * FROM ALUMNOS WHERE ESTATURA BETWEEN 1.60 AND 1.75
+--13. Obtén los alumnos que vivan en cualquiera de estos estados: 'Jalisco', 'Chiapas', 'Yucatán' usando IN.
+SELECT * FROM ALUMNOS WHERE ESTADO_NACIMIENTO IN ('JALISCO', 'CHIAPAS', 'YUCATAN');
+--14. Muestra los alumnos cuyo APELLIDO_PATERNO comience con la letra 'L'.
+SELECT * FROM ALUMNOS WHERE SUBSTR(APELLIDO_PATERNO,1,1) = 'L';
+--15. Selecciona los alumnos cuyo NOMBRE no contenga la letra 'A'.
+SELECT * FROM ALUMNOS WHERE NOMBRE NOT LIKE '%A%';
+--16. Calcula la edad aproximada de cada alumno a partir de FECHA_NACIMIENTO.
+SELECT NOMBRE,TRUNC(MONTHS_BETWEEN(SYSDATE,FECHA_NACIMIENTO )/12) AÑOS FROM ALUMNOS 
+--17. Muestra la MATRICULA, el NOMBRE y el año de nacimiento de cada alumno.
+SELECT MATRICULA, NOMBRE, FECHA_NACIMIENTO FROM ALUMNOS
+--18. Redondea la ESTATURA a un decimal y el PESO al entero más cercano.
+SELECT ROUND(ESTATURA,1), ROUND(PESO) FROM ALUMNOS;
+--19. Obtén el día de la semana de la FECHA_NACIMIENTO de cada alumno.
+SELECT A.*, TO_CHAR(FECHA_NACIMIENTO,'DAY') FROM ALUMNOS A;
+--20. Convierte la FECHA_NACIMIENTO al formato YYYY/MM/DD.
+SELECT A.*, TO_CHAR(FECHA_NACIMIENTO,'YYYY/MM/DD') FROM ALUMNOS A;
+--21. Obtén el número total de alumnos registrados en la tabla.
+SELECT COUNT(*) FROM ALUMNOS;
+--22. Calcula el promedio de PESO de todos los alumnos.
+SELECT AVG(PESO) FROM ALUMNOS
+--23. Muestra el valor mínimo y máximo de la ESTATURA.
+SELECT MIN(ESTATURA), MAX(ESTATURA) FROM ALUMNOS
+--24. Calcula el número de alumnos agrupados por SEXO.
+SELECT SEXO, COUNT(*) FROM ALUMNOS
+GROUP BY SEXO;
+--25. Obtén el promedio de peso por ESTADO_CIVIL.
+SELECT ESTADO_CIVIL,COUNT(*) FROM ALUMNOS
+GROUP BY ESTADO_CIVIL;
+--26. Muestra la cantidad de alumnos por ESTADO_NACIMIENTO.
+SELECT ESTADO_NACIMIENTO, COUNT(*)  FROM ALUMNOS
+GROUP BY ESTADO_NACIMIENTO;
+--27. Lista únicamente los estados con más de 20 alumnos.
+SELECT * FROM(
+SELECT ESTADO_NACIMIENTO, COUNT(*) N  FROM ALUMNOS
+GROUP BY ESTADO_NACIMIENTO) WHERE N>20;
+--28. Calcula el promedio de ESTATURA por SEXO, mostrando solo los grupos con promedio mayor a 1.70.
+SELECT SEXO,AVG(ESTATURA) FROM ALUMNOS
+GROUP BY SEXO HAVING AVG(ESTATURA)>1.70;
+--29. Obtén el número de alumnos por año de nacimiento.
+SELECT SUBSTR(TO_CHAR(FECHA_NACIMIENTO,'DD/MM/YYYY'),7,4),COUNT(*) NUMEROA FROM ALUMNOS 
+GROUP BY SUBSTR(TO_CHAR(FECHA_NACIMIENTO,'DD/MM/YYYY'),7,4) ;
+--30. Lista el estado de nacimiento con el mayor número de alumnos.
+SELECT * FROM(
+SELECT ESTADO_NACIMIENTO,COUNT(*) FROM ALUMNOS 
+GROUP BY ESTADO_NACIMIENTO
+ORDER BY COUNT(*) DESC)
+WHERE ROWNUM <2;
+--31. Muestra a los alumnos cuyo PESO sea mayor al promedio global de la tabla.
+SELECT * FROM ALUMNOS WHERE PESO>(SELECT AVG(PESO) FROM ALUMNOS);
+--32. Obtén a los alumnos cuya ESTATURA sea mayor que la estatura promedio de su mismo SEXO.
+SELECT * FROM ALUMNOS A
+WHERE ESTATURA>(
+SELECT AVG(ESTATURA) FROM ALUMNOS V  
+WHERE A.SEXO=V.SEXO);
+--33. Lista a los alumnos que tienen el peso máximo dentro de cada ESTADO_CIVIL.
+SELECT * FROM ALUMNOS A 
+WHERE PESO=(
+SELECT MAX(PESO) FROM ALUMNOS V
+WHERE A.ESTADO_CIVIL = V.ESTADO_CIVIL);
+--34. Encuentra al alumno más alto de cada ESTADO_NACIMIENTO.
+SELECT * FROM ALUMNOS A 
+WHERE ESTATURA=(
+SELECT MAX(ESTATURA) FROM ALUMNOS V
+WHERE A.ESTADO_NACIMIENTO = V.ESTADO_NACIMIENTO)
+ORDER BY ESTADO_NACIMIENTO;
+--35. Muestra a los alumnos cuyo PESO sea igual al peso mínimo de todos los alumnos.
+SELECT * FROM ALUMNOS WHERE PESO = (SELECT MIN(PESO)FROM ALUMNOS);
+--36. Obtén los 10 alumnos más pesados, ordenados de mayor a menor.
+SELECT * FROM (SELECT * FROM ALUMNOS 
+ORDER BY PESO DESC) WHERE ROWNUM<11;
+--37. Selecciona los 5 alumnos más jóvenes (con mayor FECHA_NACIMIENTO).
+SELECT * FROM (SELECT * FROM ALUMNOS 
+ORDER BY FECHA_NACIMIENTO DESC) WHERE ROWNUM<=5;
+--38. Lista los alumnos ubicados entre la fila 21 y 30 al ordenar por APELLIDO_PATERNO.
+SELECT * FROM (SELECT A.*, ROWNUM RN FROM (SELECT * FROM ALUMNOS ORDER BY APELLIDO_PATERNO) A
+WHERE ROWNUM<30) WHERE RN>21;
+--39. Muestra a los tres alumnos más bajos (por ESTATURA).
+SELECT * FROM (SELECT * FROM ALUMNOS 
+ORDER BY ESTATURA) WHERE ROWNUM<4;
+--40. Encuentra el alumno con la MATRICULA más baja y el de la más alta.
+SELECT * FROM ALUMNOS 
+WHERE MATRICULA=(SELECT MIN(MATRICULA) FROM ALUMNOS) OR MATRICULA=(SELECT MAX(MATRICULA) FROM ALUMNOS);
+--41. Muestra el NOMBRE_COMPLETO en formato: 'APELLIDO_PATERNO, APELLIDO_MATERNO – NOMBRE'.
+SELECT APELLIDO_PATERNO ||'-'|| APELLIDO_MATERNO|| '-'|| NOMBRE NOMBRE_COMPLETO FROM ALUMNOS;
+--42. Lista a los alumnos cuyo apellido paterno tenga exactamente 5 caracteres.
+SELECT * FROM ALUMNOS WHERE LENGTH(APELLIDO_PATERNO)=5 ;
+--43. Obtén a los alumnos cuyo NOMBRE contenga la sílaba 'CAR'.
+SELECT * FROM ALUMNOS WHERE NOMBRE LIKE '%CAR%';
+--44. Reemplaza en la salida todos los valores nulos de APELLIDO_MATERNO por el texto '(NO REGISTRADO)'.
+UPDATE ALUMNOS SET APELLIDO_MATERNO ='(NO REGISTRADO)' WHERE APELLIDO_MATERNO IS NULL;
+--45. Muestra solo la inicial de NOMBRE junto con el apellido paterno completo.
+SELECT SUBSTR(NOMBRE,1,1)||'.'||APELLIDO_PATERNO FROM ALUMNOS;
+--46. Muestra a los alumnos cuya edad sea mayor a 25 años.
+SELECT A.*, MONTHS_BETWEEN(SYSDATE,FECHA_NACIMIENTO)/12 FROM ALUMNOS A WHERE MONTHS_BETWEEN(SYSDATE,FECHA_NACIMIENTO)/12 >25;
+--47. Calcula la edad y ordénalos de mayor a menor.
+SELECT A.*, MONTHS_BETWEEN(SYSDATE, FECHA_NACIMIENTO)/12 EDAD FROM ALUMNOS A 
+ORDER  BY EDAD DESC;
+--48. Obtén el número de alumnos nacidos en cada mes del año.
+SELECT TO_CHAR(FECHA_NACIMIENTO,'MONTH')AS MES ,COUNT(*) FROM ALUMNOS 
+GROUP BY TO_CHAR(FECHA_NACIMIENTO,'MONTH');
+--MAS EFICIENTE
+SELECT MES, COUNT(*) FROM (
+    SELECT TO_CHAR(FECHA_NACIMIENTO, 'MONTH') AS MES
+    FROM ALUMNOS) 
+GROUP BY MES;
+--49. Lista a los alumnos cuya fecha de nacimiento caiga en fin de semana.
+SELECT * FROM ALUMNOS WHERE TRIM(TO_CHAR(FECHA_NACIMIENTO,'DAY')) IN ('DOMINGO','SABADO');
+--50. Calcula la diferencia en meses entre la FECHA_NACIMIENTO y la fecha actual (SYSDATE).
+SELECT MONTHS_BETWEEN(SYSDATE,FECHA_NACIMIENTO) FROM ALUMNOS;
