@@ -158,7 +158,9 @@ WHERE APELLIDO_PATERNO LIKE 'G%' OR APELLIDO_PATERNO LIKE 'M%' OR APELLIDO_PATER
 --¿Cuál es la edad promedio de los alumnos que nacieron en estados que no son ni Oaxaca ni Chiapas?
 SELECT AVG(ANIOS_EDAD) FROM ALUMNOS WHERE ESTADO_NACIMIENTO NOT IN ('OAXACA','CHIAPAS')
 --¿Cuál es el estado de nacimiento con la edad promedio más baja?
-
+SELECT AVG(ANIOS_EDAD), ESTADO_NACIMIENTO FROM ALUMNOS
+GROUP BY ESTADO_NACIMIENTO ORDER BY AVG(ANIOS_EDAD) ASC FETCH FIRST 1 ROW ONLY 
 --¿Cuántos alumnos nacieron en fin de semana (sábado o domingo) y tienen un nombre que contiene la letra 'A'?
-
+SELECT COUNT(*) FROM ALUMNOS WHERE TO_CHAR(FECHA_NACIMIENTO,'D') IN (6,7) AND UPPER(NOMBRE) LIKE '%A%'
 --¿Cuál es el promedio de peso por estado civil para alumnos que tienen una estatura entre 1.65 y 1.75 metros?
+SELECT ESTADO_CIVIL , AVG(PESO) FROM ALUMNOS WHERE ESTATURA BETWEEN 1.65 AND 1.75 GROUP BY ESTADO_CIVIL
