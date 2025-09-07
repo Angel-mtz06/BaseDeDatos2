@@ -27,7 +27,6 @@ SELECT ESTADO_NACIMIENTO,
        COUNT(CASE WHEN APELLIDO_MATERNO IS NULL THEN 1 END) 
 FROM ALUMNOS
 GROUP BY ESTADO_NACIMIENTO;
-
 -- 9. ¿Cuántos alumnos cumplen años en fin de semana (sábado o domingo) por mes?
 SELECT TO_CHAR(FECHA_NACIMIENTO,'MONTH') AS MES,
        COUNT(*) AS CUMPLE_FIN_SEMANA
@@ -129,38 +128,38 @@ ORDER BY ESTATURA DESC) WHERE ROWNUM<11;
 SELECT * FROM (SELECT MES, COUNT(*) FROM (SELECT TO_CHAR(FECHA_NACIMIENTO,'MONTH') MES FROM ALUMNOS)
 GROUP BY MES
 ORDER BY COUNT(*) DESC) WHERE ROWNUM<2;
---¿Cuál es la edad promedio y el peso promedio por estado civil y por sexo?
+-- 31. ¿Cuál es la edad promedio y el peso promedio por estado civil y por sexo?
 SELECT SEXO, ESTADO_CIVIL, AVG(ANIOS_EDAD),AVG(PESO) FROM ALUMNOS
 GROUP BY ESTADO_CIVIL, SEXO ORDER BY ESTADO_CIVIL, SEXO
---¿Cuántos alumnos tienen una estatura superior a los 1.80 metros?
+-- 32. ¿Cuántos alumnos tienen una estatura superior a los 1.80 metros?
 SELECT COUNT(*) NUMERO FROM ALUMNOS WHERE ESTATURA>1.80
 --¿Cuál es el peso máximo y mínimo por sexo?
 SELECT SEXO, MAX(PESO), MIN(PESO) FROM ALUMNOS 
 GROUP BY SEXO ORDER BY SEXO
---¿Cuál es el promedio de estatura de los alumnos que nacieron en el mes de abril?
+-- 33. ¿Cuál es el promedio de estatura de los alumnos que nacieron en el mes de abril?
 SELECT AVG(ESTATURA) FROM ALUMNOS 
 WHERE TO_CHAR(FECHA_NACIMIENTO,'MM') = '04'
---¿Cuántos alumnos no tienen su apellido paterno registrado (nulo)?
+-- 34. ¿Cuántos alumnos no tienen su apellido paterno registrado (nulo)?
 SELECT COUNT(*) FROM ALUMNOS WHERE APELLIDO_PATERNO IS NULL 
---¿Cuáles son los 5 alumnos con el peso más alto y en qué estado de nacimiento están?
+-- 35.¿Cuáles son los 5 alumnos con el peso más alto y en qué estado de nacimiento están?
 SELECT ROWNUM, PESO, ESTADO_NACIMIENTO FROM (SELECT * FROM ALUMNOS  ORDER BY PESO DESC) WHERE ROWNUM < =5
---¿Cuántos alumnos hay por año y mes de nacimiento?
+-- 36. ¿Cuántos alumnos hay por año y mes de nacimiento?
 SELECT ANIO,MES, COUNT(*) 
 FROM (SELECT TO_CHAR(FECHA_NACIMIENTO,'YYYY') ANIO,TO_CHAR(FECHA_NACIMIENTO,'MM') MES, A.* FROM ALUMNOS A)
 GROUP BY ANIO,MES ORDER BY ANIO,MES
---¿Cuál es la estatura promedio por sexo, solo para aquellos grupos que tienen más de 50 alumnos?
---NO HAY GRUPOS 
---¿Cuál es el porcentaje de alumnos de cada sexo con respecto al total?
+-- 37. ¿Cuál es la estatura promedio por sexo, solo para aquellos grupos que tienen más de 50 alumnos?
+SELECT AVG(ESTATURA) FROM ALUMNOS GROUP BY SEXO HAVING COUNT(*)>50
+-- 38. ¿Cuál es el porcentaje de alumnos de cada sexo con respecto al total?
 SELECT SEXO,ROUND(((COUNT(*)/MAX(ROWNUM))*100),2) ||'%' FROM ALUMNOS GROUP BY SEXO
---¿Cuántos alumnos tienen su apellido paterno que empieza con 'G', 'M', o 'P'?
+-- 39. ¿Cuántos alumnos tienen su apellido paterno que empieza con 'G', 'M', o 'P'?
 SELECT COUNT(*) FROM ALUMNOS 
 WHERE APELLIDO_PATERNO LIKE 'G%' OR APELLIDO_PATERNO LIKE 'M%' OR APELLIDO_PATERNO LIKE 'P%' 
---¿Cuál es la edad promedio de los alumnos que nacieron en estados que no son ni Oaxaca ni Chiapas?
+-- 40. ¿Cuál es la edad promedio de los alumnos que nacieron en estados que no son ni Oaxaca ni Chiapas?
 SELECT AVG(ANIOS_EDAD) FROM ALUMNOS WHERE ESTADO_NACIMIENTO NOT IN ('OAXACA','CHIAPAS')
---¿Cuál es el estado de nacimiento con la edad promedio más baja?
+-- 41. ¿Cuál es el estado de nacimiento con la edad promedio más baja?
 SELECT AVG(ANIOS_EDAD), ESTADO_NACIMIENTO FROM ALUMNOS
 GROUP BY ESTADO_NACIMIENTO ORDER BY AVG(ANIOS_EDAD) ASC FETCH FIRST 1 ROW ONLY 
---¿Cuántos alumnos nacieron en fin de semana (sábado o domingo) y tienen un nombre que contiene la letra 'A'?
+-- 42. ¿Cuántos alumnos nacieron en fin de semana (sábado o domingo) y tienen un nombre que contiene la letra 'A'?
 SELECT COUNT(*) FROM ALUMNOS WHERE TO_CHAR(FECHA_NACIMIENTO,'D') IN (6,7) AND UPPER(NOMBRE) LIKE '%A%'
---¿Cuál es el promedio de peso por estado civil para alumnos que tienen una estatura entre 1.65 y 1.75 metros?
+-- 43. ¿Cuál es el promedio de peso por estado civil para alumnos que tienen una estatura entre 1.65 y 1.75 metros?
 SELECT ESTADO_CIVIL , AVG(PESO) FROM ALUMNOS WHERE ESTATURA BETWEEN 1.65 AND 1.75 GROUP BY ESTADO_CIVIL
