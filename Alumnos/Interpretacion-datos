@@ -163,3 +163,42 @@ GROUP BY ESTADO_NACIMIENTO ORDER BY AVG(ANIOS_EDAD) ASC FETCH FIRST 1 ROW ONLY
 SELECT COUNT(*) FROM ALUMNOS WHERE TO_CHAR(FECHA_NACIMIENTO,'D') IN (6,7) AND UPPER(NOMBRE) LIKE '%A%'
 -- 43. ¿Cuál es el promedio de peso por estado civil para alumnos que tienen una estatura entre 1.65 y 1.75 metros?
 SELECT ESTADO_CIVIL , AVG(PESO) FROM ALUMNOS WHERE ESTATURA BETWEEN 1.65 AND 1.75 GROUP BY ESTADO_CIVIL
+-- 44. ¿Cuál es el promedio de peso por estado civil para aquellos alumnos que no nacieron en el mismo estado que su apellido paterno?
+
+-- 45. ¿Cuántos alumnos tienen un apellido paterno y materno que empiezan con la misma letra?
+ 
+-- 46. ¿Cuál es el nombre del alumno más alto de cada estado de nacimiento?
+
+-- 47. ¿Cuál es el promedio de edad de los alumnos que miden menos de 1.60 m?
+
+-- 48. ¿Cuántos alumnos hay por cada década de nacimiento (1980s, 1990s, etc.) y cuál es su peso promedio?
+
+-- 49. ¿Cuáles son los dos estados de nacimiento con el menor número de alumnos?
+
+-- 50. ¿Cuál es el peso promedio de los alumnos que no tienen su apellido materno registrado?
+
+-- 51. ¿Cuántos alumnos con un nombre de al menos 6 caracteres tienen una estatura por encima del promedio global?
+
+-- 52. ¿Cuál es el estado civil con el promedio de estatura más alto para los alumnos nacidos entre el 1 de enero de 1995 y el 31 de diciembre de 2000?
+
+-- 53. ¿Cuál es el nombre, apellido paterno y edad del alumno más viejo de cada sexo?
+
+-- 54. ¿Cuántos alumnos hay que no tienen registrado su apellido paterno ni su apellido materno?
+
+-- 55. ¿Cuál es la estatura promedio de los alumnos cuyo nombre contiene la letra 'a' y la edad es menor a 25 años?
+
+-- 56. ¿Cuál es el nombre del alumno con el peso más cercano a la media global de peso?
+
+-- 57. ¿Cuál es la diferencia entre la edad promedio de los hombres y la edad promedio de las mujeres?
+
+-- 58. ¿Qué mes tiene el mayor número de nacimientos para los alumnos cuyo peso es mayor a 75 kg?
+
+-- 59. ¿Cuál es el promedio de estatura de los alumnos por estado civil, pero solo para aquellos grupos con un peso promedio superior a 70 kg?
+
+-- 60. ¿Cuáles son los 5 alumnos más jóvenes que tienen un apellido paterno que empieza con 'C'?
+
+-- 61. ¿Cuál es el estado de nacimiento con la menor cantidad de alumnos que pesan entre 60 y 80 kg?
+
+-- 62. ¿Cuál es la edad del alumno más joven que no nació en el estado de Oaxaca?
+
+-- 63. ¿Cuántos alumnos hay que tienen un peso por encima del promedio general y una estatura por encima del promedio general?
