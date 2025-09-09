@@ -163,7 +163,7 @@ GROUP BY ESTADO_NACIMIENTO ORDER BY AVG(ANIOS_EDAD) ASC FETCH FIRST 1 ROW ONLY
 SELECT COUNT(*) FROM ALUMNOS WHERE TO_CHAR(FECHA_NACIMIENTO,'D') IN (6,7) AND UPPER(NOMBRE) LIKE '%A%'
 -- 43. ¿Cuál es el promedio de peso por estado civil para alumnos que tienen una estatura entre 1.65 y 1.75 metros?
 SELECT ESTADO_CIVIL , AVG(PESO) FROM ALUMNOS WHERE ESTATURA BETWEEN 1.65 AND 1.75 GROUP BY ESTADO_CIVIL
--- 44. ¿Cuál es el promedio de peso por estado civil para aquellos alumnos que no nacieron en el mismo estado que su apellido paterno?
+-- 44. ¿Cuál es el promedio de peso por estado civil?
 
 -- 45. ¿Cuántos alumnos tienen un apellido paterno y materno que empiezan con la misma letra?
  
