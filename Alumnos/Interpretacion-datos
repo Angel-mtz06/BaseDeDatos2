@@ -166,7 +166,8 @@ SELECT ESTADO_CIVIL , AVG(PESO) FROM ALUMNOS WHERE ESTATURA BETWEEN 1.65 AND 1.7
 -- 44. ¿Cuál es el promedio de peso por estado civil?
 SELECT ESTADO_CIVIL, AVG(PESO) FROM ALUMNOS GROUP BY ESTADO_CIVIL;
 -- 45. ¿Cuántos alumnos tienen un apellido paterno y materno que empiezan con la misma letra?
- 
+ SELECT COUNT(*) FROM ALUMNOS WHERE SUBSTR(APELLIDO_PATERNO,1,1)=SUBSTR(APELLIDO_MATERNO,1,1)
+  AND APELLIDO_PATERNO IS NOT NULL AND APELLIDO_MATERNO IS NOT NULL;
 -- 46. ¿Cuál es el nombre del alumno más alto de cada estado de nacimiento?
 
 -- 47. ¿Cuál es el promedio de edad de los alumnos que miden menos de 1.60 m?
