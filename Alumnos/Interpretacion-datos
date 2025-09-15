@@ -169,9 +169,11 @@ SELECT ESTADO_CIVIL, AVG(PESO) FROM ALUMNOS GROUP BY ESTADO_CIVIL;
  SELECT COUNT(*) FROM ALUMNOS WHERE SUBSTR(APELLIDO_PATERNO,1,1)=SUBSTR(APELLIDO_MATERNO,1,1)
   AND APELLIDO_PATERNO IS NOT NULL AND APELLIDO_MATERNO IS NOT NULL;
 -- 46. ¿Cuál es el nombre del alumno más alto de cada estado de nacimiento?
-
+SELECT ESTADO_NACIMIENTO, NOMBRE, MAX(ESTATURA) FROM ALUMNOS GROUP BY 
+ESTADO_NACIMIENTO, NOMBRE HAVING ESTATURA IN 
+(SELECT MAX(ESTATURA) FROM ALUMNOS GROUP BY ESTADO_NACIMIENTO);
 -- 47. ¿Cuál es el promedio de edad de los alumnos que miden menos de 1.60 m?
-
+  Select AVG(ANIOS_EDAD) FROM ALUMNOS WHERE ESTATURA<1.60;
 -- 48. ¿Cuántos alumnos hay por cada década de nacimiento (1980s, 1990s, etc.) y cuál es su peso promedio?
 
 -- 49. ¿Cuáles son los dos estados de nacimiento con el menor número de alumnos?
