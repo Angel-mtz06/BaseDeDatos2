@@ -1,0 +1,6 @@
+CREATE OR REPLACE TRIGGER trg_before_insert_employee
+BEFORE INSERT ON employees
+FOR EACH ROW
+BEGIN
+    :NEW.created_at := SYSDATE;
+END;
