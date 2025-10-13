@@ -1,0 +1,55 @@
+create or replace trigger Validacion_edad
+  before insert on alumnos  
+  for each row
+declare
+  Edad number(3);
+begin
+  Edad :=TRUNC(MONTHS_BETWEEN(SYSDATE,:NEW.FECHA_NACIMIENTO)/12);
+  IF EDAD <18 THEN 
+    RAISE_APPLICATION_ERROR(-20001, 'El alumno debe tener al menos 18 años.');
+    END IF;
+end Validacion_edad;
+
+---------------------------------------------------------------
+
+create or replace trigger Validacion_Sexo
+  before insert on alumnos  
+  for each row
+declare
+begin
+  IF :NEW.SEXO NOT IN ('HOMBRE', 'MUJER') THEN
+    RAISE_APPLICATION_ERROR(-20002, 'Selecciona el sexo al nacer HOMBRE O MUJER');
+    END IF;
+end Validacion_Sexo;
+---------------------------------------------------------------
+CREATE OR REPLACE TRIGGER Validar_matricula
+AFTER UPDATE OF MATRICULA ON ALUMNOS
+DECLARE
+  v_count NUMBER;
+BEGIN
+  SELECT COUNT(*) - COUNT(DISTINCT MATRICULA) 
+  INTO v_count
+  FROM ALUMNOS;
+
+  IF v_count > 0 THEN
+    RAISE_APPLICATION_ERROR(-20003, 'Hay matrículas duplicadas en la tabla.');
+  END IF;
+END Validar_matricula;
+---------------------------------------------------------------
+create or replace trigger Validacion_Estados
+  before update or insert on alumnos  
+  for each row
+declare
+t_estados number;
+begin
+  SELECT COUNT(*)
+  INTO t_estados
+  FROM estados
+
+  WHERE nombre = :new.estado_nacimiento;
+  IF t_estados=0 THEN  
+    RAISE_APPLICATION_ERROR(-2004,'Ese estado no es valido');
+    end if;
+
+end Validacion_Estados;
+---------------------------------------------------------------
