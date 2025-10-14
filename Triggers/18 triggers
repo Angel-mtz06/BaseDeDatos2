@@ -1,3 +1,5 @@
+
+--BEFORE
 create or replace trigger Validacion_edad
   before insert on alumnos  
   for each row
@@ -53,3 +55,193 @@ begin
 
 end Validacion_Estados;
 ---------------------------------------------------------------
+CREATE OR REPLACE TRIGGER Alumno_Eliminado
+BEFORE DELETE ON ALUMNOS
+FOR EACH ROW
+BEGIN
+  INSERT INTO ALUMNOS_ELIMINADOS 
+  VALUES (
+    :OLD.MATRICULA,
+    :OLD.NOMBRE,
+    :OLD.APELLIDO_PATERNO,
+    :OLD.APELLIDO_MATERNO,
+    :OLD.SEXO,
+    :OLD.FECHA_NACIMIENTO,
+    :OLD.ESTADO_CIVIL,
+    :OLD.ESTADO_NACIMIENTO,
+    :OLD.ESTATURA,
+    :OLD.PESO,
+    :OLD.DIAS_EDAD,
+    :OLD.MESES_EDAD,
+    :OLD.ANIOS_EDAD,
+    :OLD.IMC,
+    :OLD.ESTADO_IMC,
+    :OLD.CLASIFICACION_IMC
+  );
+END Alumno_Eliminado;
+---------------------------------------------------------------
+CREATE OR REPLACE TRIGGER Pdatos_Eliminado
+BEFORE DELETE ON PDATOS
+FOR EACH ROW
+BEGIN
+  INSERT INTO PDATOS_ELIMINADOS 
+  VALUES (
+    :OLD.PERS_ID,
+    :OLD.PES_NOM,
+    :OLD.APELLIDO_PAT,
+    :OLD.APELLIDO_MAT,
+    :OLD.PESR_CURP,
+    :OLD.PERS_FNACIO,
+    :OLD.SEXO,
+    :OLD.PERS_EDONACIO,
+    SYSDATE,
+    USER
+  );
+END Pdatos_Eliminado;
+
+
+
+--AFTER
+
+---------------------------------------------------------------
+CREATE OR REPLACE TRIGGER CURP
+AFTER INSERT ON PDATOS
+FOR EACH ROW
+BEGIN
+    IF TO_NUMBER(SUBSTR(:NEW.PESR_CURP, 5, 2)) < 25 THEN
+        :NEW.PERS_FNACIO := TO_DATE('20' || SUBSTR(:NEW.PESR_CURP, 5, 2) ||
+                                    SUBSTR(:NEW.PESR_CURP, 7, 2) ||
+                                    SUBSTR(:NEW.PESR_CURP, 9, 2), 'YYYY/MM/DD');
+    ELSE
+        :NEW.PERS_FNACIO := TO_DATE('19' || SUBSTR(:NEW.PESR_CURP, 5, 2) ||
+                                    SUBSTR(:NEW.PESR_CURP, 7, 2) ||
+                                    SUBSTR(:NEW.PESR_CURP, 9, 2), 'YYYY/MM/DD');
+    END IF;
+
+
+    IF SUBSTR(:NEW.PESR_CURP, 11, 1) = 'H' THEN
+        :NEW.SEXO := 'Hombre';
+    ELSE
+        :NEW.SEXO := 'Mujer';
+    END IF;
+END;
+---------------------------------------------------------------
+CREATE OR REPLACE TRIGGER IVA_Calculo
+AFTER INSERT ON VENTAS
+FOR EACH ROW
+BEGIN
+    IF :NEW.IVA IS NULL THEN
+        UPDATE VENTAS
+        SET IVA = :NEW.IMPORTE * 0.16
+        WHERE ID = :NEW.ID;
+    END IF;
+END;
+---------------------------------------------------------------
+CREATE OR REPLACE TRIGGER AUDITORIA_VENTAS
+AFTER UPDATE OF PRECIO ON VENTAS
+FOR EACH ROW
+BEGIN
+    INSERT INTO VENTAS_AUDITORIA(FECHA_UPDATE, ID_VENTA, PRECIO_ANTERIOR, PRECIO_NUEVO)
+    VALUES (SYSDATE, :OLD.ID, :OLD.PRECIO, :NEW.PRECIO);
+END;
+---------------------------------------------------------------
+CREATE OR REPLACE TRIGGER Calculo_Precio
+AFTER UPDATE OF CANTIDADP, PRECIO ON VENTAS
+FOR EACH ROW
+BEGIN
+    UPDATE VENTAS
+    SET IMPORTE = :NEW.CANTIDADP * :NEW.PRECIO
+    WHERE ID = :NEW.ID;
+END;
+---------------------------------------------------------------
+CREATE OR REPLACE TRIGGER Auditoria_ventas_Delete
+AFTER DELETE ON VENTAS
+FOR EACH ROW
+BEGIN
+    INSERT INTO VENTAS_DELETE(FECHA_DELETE, ID_VENTA, CLIENTE, IMPORTE)
+    VALUES (SYSDATE, :OLD.ID, :OLD.CLIENTE, :OLD.IMPORTE);
+END;
+---------------------------------------------------------------
+CREATE OR REPLACE TRIGGER Revision_Inventario
+AFTER DELETE ON VENTAS
+FOR EACH ROW
+BEGIN
+    UPDATE VENTAS
+    SET INVENTARIO = INVENTARIO + :OLD.CANTIDADP
+    WHERE CVEART = :OLD.CVEART;
+END;
+
+
+--INSTEAD OF
+---------------------------------------------------------------
+CREATE OR REPLACE TRIGGER Pdatos_Insert
+INSTEAD OF INSERT ON VPDATOS
+FOR EACH ROW
+BEGIN
+    INSERT INTO PDATOS(PERS_ID, PES_NOM, APELLIDO_PAT, APELLIDO_MAT, PESR_CURP, PERS_FNACIO, SEXO, PERS_EDONACIO)
+    VALUES (:NEW.PERS_ID, :NEW.PES_NOM, :NEW.APELLIDO_PAT, :NEW.APELLIDO_MAT, :NEW.PESR_CURP, :NEW.PERS_FNACIO, :NEW.SEXO, :NEW.PERS_EDONACIO);
+END;
+---------------------------------------------------------------
+CREATE OR REPLACE TRIGGER Pdatos_Insert_Auditoria
+INSTEAD OF INSERT ON VPDATOS
+FOR EACH ROW
+BEGIN
+    INSERT INTO PDATOS(PERS_ID, PES_NOM, APELLIDO_PAT, APELLIDO_MAT, PESR_CURP, PERS_FNACIO, SEXO, PERS_EDONACIO)
+    VALUES (:NEW.PERS_ID, :NEW.PES_NOM, :NEW.APELLIDO_PAT, :NEW.APELLIDO_MAT, :NEW.PESR_CURP, :NEW.PERS_FNACIO, :NEW.SEXO, :NEW.PERS_EDONACIO);
+
+    INSERT INTO PDATOS_AUDITORIA_INSERT(PERS_ID, FECHA_INSERT)
+    VALUES (:NEW.PERS_ID, SYSDATE);
+END;
+---------------------------------------------------------------
+CREATE OR REPLACE TRIGGER Pdatos_Update
+INSTEAD OF UPDATE ON VPDATOS
+FOR EACH ROW
+BEGIN
+    UPDATE PDATOS
+    SET PES_NOM = :NEW.PES_NOM,
+        APELLIDO_PAT = :NEW.APELLIDO_PAT,
+        APELLIDO_MAT = :NEW.APELLIDO_MAT,
+        PESR_CURP = :NEW.PESR_CURP,
+        PERS_FNACIO = :NEW.PERS_FNACIO,
+        SEXO = :NEW.SEXO,
+        PERS_EDONACIO = :NEW.PERS_EDONACIO
+    WHERE PERS_ID = :OLD.PERS_ID;
+END;
+---------------------------------------------------------------
+CREATE OR REPLACE TRIGGER Pdatos_Update_Auditoria
+INSTEAD OF UPDATE ON VPDATOS
+FOR EACH ROW
+BEGIN
+    UPDATE PDATOS
+    SET PES_NOM = :NEW.PERS_NOM,
+        APELLIDO_PAT = :NEW.APELLIDO_PAT,
+        APELLIDO_MAT = :NEW.APELLIDO_MAT
+    WHERE PERS_ID = :OLD.PERS_ID;
+
+    INSERT INTO PDATOS_AUDITORIA_UPDATE(PERS_ID, NOMBRE_ANTERIOR, NOMBRE_NUEVO, FECHA_UPDATE)
+    VALUES (:OLD.PERS_ID, :OLD.PERS_NOM, :NEW.PERS_NOM, SYSDATE);
+END;
+---------------------------------------------------------------
+CREATE OR REPLACE TRIGGER Pdatos_Delete
+INSTEAD OF DELETE ON VPDATOS
+FOR EACH ROW
+BEGIN
+    DELETE FROM PDATOS
+    WHERE PERS_ID = :OLD.PERS_ID;
+END;
+---------------------------------------------------------------
+CREATE TABLE PDATOS_AUDITORIA_DELETE (
+    PERS_ID NUMBER,
+    FECHA_DELETE DATE
+);
+
+CREATE OR REPLACE TRIGGER Pdatos_Delete_Auditoria
+INSTEAD OF DELETE ON VPDATOS
+FOR EACH ROW
+BEGIN
+    DELETE FROM PDATOS
+    WHERE PERS_ID = :OLD.PERS_ID;
+
+    INSERT INTO PDATOS_AUDITORIA_DELETE(PERS_ID, FECHA_DELETE)
+    VALUES (:OLD.PERS_ID, SYSDATE);
+END;
