@@ -1,0 +1,6 @@
+
+La sintaxis básica es:
+
+
+CREATE INDEX nombre_del_indice
+ON nombre_de_la_tabla (nombre_de_la_columna);
