@@ -1,0 +1,67 @@
+CREATE OR REPLACE PROCEDURE crear_cliente (
+    -- Parámetros de ENTRADA (los datos que proporcionamos)
+    p_nombre         IN  VARCHAR2,
+    p_email          IN  VARCHAR2,
+    
+    -- Parámetros de SALIDA (los datos que nos devolverá)
+    p_nuevo_id       OUT NUMBER,
+    p_mensaje_estado OUT VARCHAR2
+)
+IS
+BEGIN
+    -- Insertamos el nuevo cliente y usamos la cláusula RETURNING
+    -- para capturar el ID generado directamente en nuestro parámetro OUT.
+    INSERT INTO clientes (nombre, email, fecha_creacion)
+    VALUES (p_nombre, p_email, SYSDATE)
+    RETURNING id_cliente INTO p_nuevo_id;
+
+    -- Llenamos el segundo parámetro OUT con un mensaje de éxito.
+    p_mensaje_estado := 'Cliente "' || p_nombre || '" creado exitosamente.';
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Si hay un error (ej. email duplicado), llenamos los parámetros OUT
+        -- con valores que indiquen el fallo.
+        p_nuevo_id := NULL;
+        p_mensaje_estado := 'Error al crear el cliente: ' || SQLERRM;
+        ROLLBACK;
+END crear_cliente;
+SET SERVEROUTPUT ON;
+
+
+
+
+
+
+
+-- Ahora, para llamar al procedimiento y capturar ambos valores de salida,
+DECLARE
+    -- PREPARO MIS RECIPIENTES:
+    -- Una variable para guardar el ID que me devolverá el procedimiento.
+    v_id_generado      NUMBER;
+    -- Otra variable para guardar el mensaje que me devolverá.
+    v_mensaje_recibido VARCHAR2(200);
+BEGIN
+    -- LLAMO AL PROCEDIMIENTO:
+    -- Le paso los datos de entrada y también mis "recipientes" vacíos.
+    crear_cliente(
+        p_nombre         => 'Nueva Empresa SRL',
+        p_email          => 'contacto@empresa.com',
+        
+        p_nuevo_id       => v_id_generado,       -- Pasa el recipiente para el ID
+        p_mensaje_estado => v_mensaje_recibido   -- Pasa el recipiente para el mensaje
+    );
+    
+    -- USO LOS RESULTADOS:
+    -- Después de la llamada, mis variables ahora están llenas con los valores
+    -- que el procedimiento les asignó. Ahora puedo usarlas como quiera.
+    
+    DBMS_OUTPUT.PUT_LINE('--- Resultados ---');
+    -- Así accedes al "primer" valor de salida:
+    DBMS_OUTPUT.PUT_LINE('ID del nuevo cliente: ' || v_id_generado);
+    
+    -- Así accedes al "segundo" valor de salida:
+    DBMS_OUTPUT.PUT_LINE('Estado: ' || v_mensaje_recibido);
+
+END;
