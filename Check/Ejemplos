@@ -1,0 +1,14 @@
+CREATE TABLE productos (
+    id_producto NUMBER PRIMARY KEY,
+    nombre      VARCHAR2(100),
+    precio      NUMBER CHECK (precio > 0),
+    stock       NUMBER CHECK (stock >= 0)
+);
+CREATE TABLE publicaciones (
+    id           NUMBER,
+    titulo       VARCHAR2(200),
+    tipo         VARCHAR2(10),
+    CONSTRAINT chk_publicaciones_tipo CHECK (tipo IN ('LIBRO', 'REVISTA', 'DIARIO'))
+);
+ALTER TABLE empleados
+ADD CONSTRAINT chk_empleados_salario_minimo CHECK (salario >= 3000);
