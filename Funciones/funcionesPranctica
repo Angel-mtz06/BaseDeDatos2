@@ -1,0 +1,8 @@
+create or replace function nombreCliente(ID IN NUMBER) return varchar2 is
+  Result CLIENTES.NOMBRE%TYPE;
+begin
+  select nombre into Result from clientes c where id=c.cvecte;
+  return(Result);
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN RETURN 'NO EXISTE';
+end nombreCliente;
